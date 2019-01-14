@@ -8,6 +8,14 @@
   },
   "author": "Eiki Tabayashi",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tabayashi/gulp-aggregate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tabayashi/gulp-aggregate/issues"
+  },
+  "homepage": "https://github.com/tabayashi/gulp-aggregate#readme",
   "dependencies": {
     "is-plain-object": "^2.0.4",
     "kind-of": "^6.0.2",
