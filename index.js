@@ -1,15 +1,13 @@
 'use strict';
-var path        = require('path');
-var kindof      = require('kind-of');
-var through     = require('through2');
-var PluginError = require(' plugin-error');
-var Vinyl       = require('vinyl');
-var Q           = require('q');
+var path          = require('path');
+var kindof        = require('kind-of');
+var through       = require('through2');
+var isPlainObject = require('is-plain-object');
+var PluginError   = require(' plugin-error');
+var Vinyl         = require('vinyl');
+var Q             = require('q');
 
 module.exports = function() {
-  function isPlainObject(value) {
-    return Object.getPrototypeOf(value) === null || Object === value.constructor;
-  }
   return {
     get: function() {
       return function(options) {
