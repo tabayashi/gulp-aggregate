@@ -37,6 +37,7 @@ module.exports = function(aggregate, options) {
       return merge.apply(null, Object.keys(groups)
         .reduce(function(streams, group) {
           streams.push(aggregate.call(null, group, groups[group]));
+          return streams;
         }, [])
       ).on('end', callback);
     }
