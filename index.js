@@ -1,7 +1,7 @@
 'use strict';
 var path        = require('path');
 var through     = require('through2');
-var merge       = require('event-stream');
+var merge       = require('event-stream').merge;
 var PluginError = require('plugin-error');
 
 module.exports = function(aggregate, options) {
