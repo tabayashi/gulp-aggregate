@@ -17,11 +17,8 @@
   },
   "homepage": "https://github.com/tabayashi/gulp-aggregate#readme",
   "dependencies": {
-    "is-plain-object": "^2.0.4",
-    "kind-of": "^6.0.2",
+    "event-stream": "^4.0.1",
     "plugin-error": "^1.0.1",
-    "q": "^1.5.1",
-    "through2": "^3.0.0",
-    "vinyl": "^2.2.0"
+    "through2": "^3.0.0"
   }
 }
