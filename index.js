@@ -14,6 +14,10 @@ module.exports = function(aggregate, options) {
     };
   }
 
+  if (!('onend' in options) || !options.onend) {
+    options.onend = function() {};
+  }
+
   return through.obj(
     function(chunk, encoding, callback) {
       var group;
