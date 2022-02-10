@@ -1,49 +1,47 @@
-'use strict';
-var path        = require('path');
-var through     = require('through2');
-var merge       = require('event-stream').merge;
-var PluginError = require('plugin-error');
+const Path        = require('path');
+const Through     = require('through2');
+const EventStream = require('event-steam');
+const PluginError = require('plugin-error');
 
-module.exports = function(aggregate, options) {
-  var groups = {};
 
-  options = options || {};
-  if (!('group' in options) || !options.group) {
-    options.group = function(file) {
-      return path.basename(path.dirname(file.path));
-    };
-  }
+function plugin(aggregate, options) {
+  let groups   = {};
 
-  if (!('onend' in options) || !options.onend) {
-    options.onend = function() {};
-  }
+  options = { ...({
+    group: file => Path.basename(Path.dirname(file.path)),
+  }), ...(options || {}) };
 
-  return through.obj(
-    function(chunk, encoding, callback) {
-      var group;
+  function transform(file, encode, callback) {
+    let group = "";
 
-      if (chunk.isNull()) {
-        return callback(null, chunk);
-      }
-
-      if (chunk.isStream()) {
-        return callback(new PluginError('aggregate', 'Streaming not supported'));
-      }
-
-      group = options.group(chunk);
-      if (!(group in groups)) {
-        groups[group] = [];
-      }
-      groups[group].push(chunk);
-      return callback();
-    },
-    function(callback) {
-      return merge.apply(null, Object.keys(groups)
-        .reduce(function(streams, group) {
-          streams.push(aggregate.call(null, group, groups[group]));
-          return streams;
-        }, [])
-      ).on('end', callback);
+    if (file.isNull()) {
+      return callback(null, file);
     }
-  );
-};
+
+    if (file.isStream()) {
+      return callback(new PluginError("gulp-aggregate", "Streaming not supported"));
+    }
+
+    group = options.group(file);
+    if (!(group in groups)) {
+      groups[group] = [];
+    }
+    groups[group].push(file);
+    return callback();
+  }
+
+  function flush(callback) {
+    const streams = Object.keys(groups).reduce((memo, name) => {
+      const stream = EventStream.readArray(groups[name]);
+      memo.push(aggregate(name, stream));
+      return memo;
+    }, []);
+    const stream = EventStream.merge(streams);
+    stream.on('end', callback);
+    return stream;
+  }
+
+  return Through.obj(transform, flush);
+}
+
+module.exports = plugin;
