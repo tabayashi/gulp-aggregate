@@ -3,7 +3,6 @@ const Through     = require('through2');
 const EventStream = require('event-steam');
 const PluginError = require('plugin-error');
 
-
 function plugin(aggregate, options) {
   let groups   = {};
 
