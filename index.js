@@ -1,6 +1,6 @@
 const Path        = require('path');
 const Through     = require('through2');
-const EventStream = require('event-steam');
+const EventStream = require('event-stream');
 const PluginError = require('plugin-error');
 
 function plugin(aggregate, options) {
