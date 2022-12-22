@@ -30,9 +30,9 @@ function plugin(aggregate, options) {
   }
 
   function flush(callback) {
-    const streams = Object.keys(groups).reduce((memo, name) => {
-      const stream = EventStream.readArray(groups[name]);
-      memo.push(aggregate(name, stream));
+    const streams = Object.keys(groups).reduce((memo, group) => {
+      const stream = EventStream.readArray(groups[group]);
+      memo.push(aggregate(group, stream));
       return memo;
     }, []);
     const stream = EventStream.merge(streams);
