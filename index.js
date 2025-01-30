@@ -1,46 +1,37 @@
-const Path        = require('path');
-const Through     = require('through2');
-const EventStream = require('event-stream');
+const path = require('node:path');
+const through2 = require('through2');
+const es = require('event-stream');
 const PluginError = require('plugin-error');
 
 function plugin(aggregate, options) {
-  let groups   = {};
-
-  options = { ...({
-    group: file => Path.basename(Path.dirname(file.path)),
-  }), ...(options || {}) };
-
-  function transform(file, encode, callback) {
-    let group = "";
-
-    if (file.isNull()) {
-      return callback(null, file);
+  options = {
+    ...({ grouping: file => path.basename(path.dirname(file.path)) }),
+    ...(options || {})
+  };
+  let groups = {};
+  return through2.obj(
+    function(file, _, callback) {
+      if (file.isNull()) {
+        return callback(null, file);
+      }
+      if (file.isStream()) {
+        return callback(new PluginError("gulp-aggregate", "Streaming not supported"));
+      }
+      const group = options.grouping(file);
+      if (!(group in groups)) {
+        groups[group] = [];
+      }
+      groups[group].push(file);
+      callback();
+    },
+    function(callback) {
+      const stream = es.merge(Object.keys(groups).reduce((acum, group) => {
+        acum.push(aggregate(group, es.readArray(groups[group])));
+        return acum;
+      }, []));
+      stream.on('end', callback);
     }
-
-    if (file.isStream()) {
-      return callback(new PluginError("gulp-aggregate", "Streaming not supported"));
-    }
-
-    group = options.group(file);
-    if (!(group in groups)) {
-      groups[group] = [];
-    }
-    groups[group].push(file);
-    return callback();
-  }
-
-  function flush(callback) {
-    const streams = Object.keys(groups).reduce((memo, group) => {
-      const stream = EventStream.readArray(groups[group]);
-      memo.push(aggregate(group, stream));
-      return memo;
-    }, []);
-    const stream = EventStream.merge(streams);
-    stream.on('end', callback);
-    return stream;
-  }
-
-  return Through.obj(transform, flush);
+  );
 }
 
 module.exports = plugin;
