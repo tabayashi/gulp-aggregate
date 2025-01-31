@@ -1,9 +1,11 @@
-const path = require('node:path');
-const through2 = require('through2');
-const es = require('event-stream');
-const PluginError = require('plugin-error');
+import path from 'node:path'
+import through2 from 'through2'
+import es from 'event-stream'
+import PluginError from 'plugin-error'
 
-function plugin(aggregate, options) {
+const PLUGIN_NAME = 'gulp-aggregate';
+
+export default (aggregate, options) => {
   options = {
     ...({ grouping: file => path.basename(path.dirname(file.path)) }),
     ...(options || {})
@@ -15,7 +17,7 @@ function plugin(aggregate, options) {
         return callback(null, file);
       }
       if (file.isStream()) {
-        return callback(new PluginError("gulp-aggregate", "Streaming not supported"));
+        return callback(new PluginError(PLUGIN_NAME, "Streaming not supported"));
       }
       const group = options.grouping(file);
       if (!(group in groups)) {
@@ -32,6 +34,4 @@ function plugin(aggregate, options) {
       stream.on('end', callback);
     }
   );
-}
-
-module.exports = plugin;
+};
